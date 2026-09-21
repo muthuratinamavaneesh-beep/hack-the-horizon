@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Hackathon {
+  id            String   @id @default(cuid())
+  name          String
+  startDateTime DateTime
+  endDateTime   DateTime
+  timezone      String   @default("Asia/Kolkata")
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  date          DateTime
+  startDateTime DateTime
+  endDateTime   DateTime
+  location      String?
+  visible       Boolean  @default(true)
+  important     Boolean  @default(false)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  message     String
+  type        String    @default("Normal") // Normal, Important, Emergency
+  published   Boolean   @default(false)
+  pinned      Boolean   @default(false)
+  scheduledAt DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
