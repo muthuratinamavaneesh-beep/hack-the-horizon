@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
-import { API_URL, SOCKET_URL, setServerTimeOffset } from '../utils/time';
+import { API_URL, setServerTimeOffset } from '../utils/time';
 
 const HackathonContext = createContext();
 
@@ -39,30 +38,51 @@ export const HackathonProvider = ({ children }) => {
   useEffect(() => {
     fetchInitialData();
 
-    const newSocket = io(SOCKET_URL);
-    setSocket(newSocket);
+    // 2. WebSocket Real-time Updates (Native for Cloudflare DO)
+    const wsBaseUrl = import.meta.env.VITE_SOCKET_URL || `ws://${window.location.host}`;
+    const wsUrl = wsBaseUrl.endsWith('/ws') ? wsBaseUrl : `${wsBaseUrl}/ws`;
+    
+    // Ensure wss:// is used for https URLs
+    const finalWsUrl = wsUrl.replace(/^http/, 'ws');
+    
+    const ws = new WebSocket(finalWsUrl);
+    setSocket(ws);
 
-    newSocket.on('serverTime', (data) => {
-      setServerTimeOffset(data.serverTime);
-    });
+    ws.onopen = () => {
+      console.log('Connected to real-time events');
+    };
 
-    newSocket.on('settingsUpdated', (updatedSettings) => {
-      setSettings(updatedSettings);
-    });
+    ws.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.event === 'serverTime') {
+          setServerTime(new Date(payload.data.serverTime));
+        } else if (payload.event === 'announcement' || payload.event === 'announcementAdded') {
+          setAnnouncements(prev => [payload.data, ...prev]);
+        } else if (payload.event === 'scheduleUpdated') {
+          // Immediately sync the entire events array to get the new order
+          fetch(`${API_URL}/events`).then(res => res.json()).then(data => setEvents(data));
+        } else if (payload.event === 'announcementsUpdated') {
+          // Complete sync
+          fetch(`${API_URL}/announcements`).then(res => res.json()).then(data => setAnnouncements(data));
+        }
+      } catch (err) {
+        console.error('Error parsing WS message', err);
+      }
+    };
 
-    newSocket.on('scheduleUpdated', async () => {
-      // Re-fetch events when schedule updates (simple way to ensure ordering is correct)
-      const eventsRes = await fetch(`${API_URL}/events`);
-      setEvents(await eventsRes.json());
-    });
+    ws.onerror = (error) => {
+      console.error('WebSocket Error:', error);
+    };
 
-    newSocket.on('announcementsUpdated', async () => {
-      const announcementsRes = await fetch(`${API_URL}/announcements`);
-      setAnnouncements(await announcementsRes.json());
-    });
+    ws.onclose = () => {
+      console.log('WebSocket disconnected');
+    };
 
     return () => {
-      newSocket.disconnect();
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
     };
   }, []);
 

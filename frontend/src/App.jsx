@@ -5,6 +5,7 @@ import { HackathonProvider } from './context/HackathonContext';
 // Pages
 import PublicPortal from './pages/PublicPortal';
 import Schedule from './pages/Schedule';
+import Venues from './pages/Venues';
 import AdminLogin from './pages/AdminLogin';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -20,6 +21,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<PublicPortal />} />
           <Route path="/schedule" element={<Schedule />} />
+          <Route path="/venues" element={<Venues />} />
           
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />

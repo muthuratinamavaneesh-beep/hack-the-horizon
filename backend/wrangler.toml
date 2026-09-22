@@ -1,0 +1,19 @@
+name = "hackathon-backend"
+main = "src/index.js"
+compatibility_date = "2024-02-23"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "hackathon-db"
+database_id = "9e382237-0dfe-494d-b48f-407e267d4a5f"
+
+# Durable Object for WebSockets
+[[durable_objects.bindings]]
+name = "WEBSOCKET_ROOM"
+class_name = "WebSocketRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["WebSocketRoom"]

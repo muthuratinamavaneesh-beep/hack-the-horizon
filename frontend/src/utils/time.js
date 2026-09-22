@@ -1,4 +1,4 @@
-export const API_URL = import.meta.env.VITE_API_URL || '/api';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8788/api';
 export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '/';
 
 let serverTimeOffset = 0;

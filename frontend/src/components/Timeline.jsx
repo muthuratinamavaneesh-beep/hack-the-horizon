@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHackathon } from '../context/HackathonContext';
-import { getEventStatus } from '../utils/time';
+import { getEventStatus, formatTimeRange } from '../utils/time';
 
 const Timeline = () => {
   const { events } = useHackathon();
@@ -62,7 +62,7 @@ const Timeline = () => {
                     <div>
                       <div className="flex items-center gap-3 mb-2">
                         <span className="font-mono text-[var(--color-secondary)] font-bold">
-                          {new Date(event.startDateTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          {formatTimeRange(event.startDateTime, event.endDateTime)}
                         </span>
                         <span className={`text-xs font-bold px-2 py-1 rounded-sm uppercase tracking-wider ${
                           status === 'LIVE NOW' ? 'bg-red-500/20 text-red-400' :
