@@ -8,7 +8,7 @@ export const requireAuth = async (c, next) => {
   }
 
   try {
-    const payload = await verify(token, process.env.JWT_SECRET, 'HS256');
+    const payload = await verify(token, c.env.JWT_SECRET, 'HS256');
     c.set('adminId', payload.id);
     await next();
   } catch (err) {
