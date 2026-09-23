@@ -1,19 +1,11 @@
 import { Hono } from 'hono';
-import { requireAuth } from '../middlewares/auth';
+import { requireAuth } from '../middlewares/auth.js';
+import { broadcastEvent } from '../index.js';
 
 const router = new Hono();
 
 const broadcast = async (c, eventName, data) => {
-  try {
-    const id = c.env.WEBSOCKET_ROOM.idFromName('global-room');
-    const room = c.env.WEBSOCKET_ROOM.get(id);
-    await room.fetch('http://dummy/', {
-      method: 'POST',
-      body: JSON.stringify({ event: eventName, data })
-    });
-  } catch (err) {
-    console.error('Broadcast failed:', err);
-  }
+  broadcastEvent(eventName, data);
 };
 
 router.get('/', async (c) => {

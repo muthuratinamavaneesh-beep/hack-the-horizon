@@ -21,7 +21,7 @@ router.post('/login', async (c) => {
     return c.json({ error: 'Invalid credentials' }, 401);
   }
 
-  const token = await sign({ id: admin.id, username: admin.username }, c.env.JWT_SECRET);
+  const token = await sign({ id: admin.id, username: admin.username }, process.env.JWT_SECRET);
   return c.json({ token });
 });
 
@@ -31,7 +31,7 @@ router.post('/verify', async (c) => {
 
   try {
     const { verify } = await import('hono/jwt');
-    await verify(token, c.env.JWT_SECRET, 'HS256');
+    await verify(token, process.env.JWT_SECRET, 'HS256');
     return c.json({ valid: true });
   } catch (err) {
     return c.json({ valid: false });
